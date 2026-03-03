@@ -18,8 +18,11 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["src/*"],
+      "@components/*": ["src/shared/components/*"],
+      "@styles/*": ["src/shared/styles/*"]
     }
   },
   "include": [
@@ -30,5 +33,6 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
+  
   "exclude": ["node_modules"]
 }
