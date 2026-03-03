@@ -10,7 +10,7 @@ export default function NotFoundPage() {
       <Text view="title" tag="h1">
         Page not found
       </Text>
-      <Text view="p-16" style={{ marginTop: 16, marginBottom: 32 }}>
+      <Text view="p-16" >
         The page you are looking for does not exist or has been moved.
       </Text>
       <Link href={AppRoutePaths.home}>

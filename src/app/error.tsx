@@ -22,7 +22,7 @@ export default function GlobalError({ error, reset }: Props) {
           <Text view="title" tag="h1">
             Something went wrong
           </Text>
-          <Text view="p-16" style={{ marginTop: 16, marginBottom: 32 }}>
+          <Text view="p-16">
             Please try again or go back to the homepage.
           </Text>
           <Button onClick={reset}>Try again</Button>
