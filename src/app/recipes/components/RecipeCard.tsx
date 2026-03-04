@@ -1,3 +1,5 @@
+//recipes/components/RecipeCard.tsx
+
 "use client";
 
 import React from "react";

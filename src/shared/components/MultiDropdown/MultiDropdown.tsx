@@ -62,15 +62,19 @@ const MultiDropdown: React.FC<MultiDropdownProps> = ({
 
   const title = getTitle(value);
 
-  const inputValue = isOpen ? filter : value.length > 0 ? title : '';
+  const inputValue = filter || (value.length > 0 ? title : '');
   const placeholder = value.length > 0 ? '' : title;
 
   const handleInputClick = () => {
     if (disabled) return;
-    if (!isOpen) {
+    if (isOpen) {
+      setIsOpen(false);
+      setFilter('');
+    } else {
       setIsOpen(true);
     }
   };
+
 
   const handleInputChange = (val: string) => {
     if (disabled) return;

@@ -1,5 +1,5 @@
-import { makeAutoObservable, runInAction, autorun } from 'mobx';
-import { apiUrls } from '@/shared/config/api';
+import { makeAutoObservable, runInAction, autorun } from "mobx";
+import { apiUrls } from "@/shared/config/api";
 
 export type CartIngredient = {
   id: number;
@@ -19,12 +19,12 @@ export type CartItem = {
 };
 
 const JWT_TOKEN =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mjg5LCJpYXQiOjE3NzIyNjQ5ODYsImV4cCI6MTc3NDg1Njk4Nn0.WsJWADPnTe6H3SHJ7_QzLjMaF1r9Md5ZjEvw_u5d5aE';
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mjg5LCJpYXQiOjE3NzIyNjQ5ODYsImV4cCI6MTc3NDg1Njk4Nn0.WsJWADPnTe6H3SHJ7_QzLjMaF1r9Md5ZjEvw_u5d5aE";
 
 const CART_SYNC_PRODUCT_ID = 156;
 
 const getHeaders = () => ({
-  'Content-Type': 'application/json',
+  "Content-Type": "application/json",
   Authorization: `Bearer ${JWT_TOKEN}`,
 });
 
@@ -35,18 +35,32 @@ class CartStore {
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
 
-    const savedCart = localStorage.getItem('recipe_cart');
-    if (savedCart) {
-      try {
-        this.items = JSON.parse(savedCart);
-      } catch (e) {
-        console.error('Failed to parse cart from local storage', e);
-        this.items = [];
-      }
+    // Читаем и подписываемся на localStorage только в браузере
+    if (typeof window !== "undefined") {
+      this.hydrateFromLocalStorage();
+      this.setupPersistence();
     }
+  }
 
+  private hydrateFromLocalStorage() {
+    try {
+      const savedCart = window.localStorage.getItem("recipe_cart");
+      if (!savedCart) return;
+      const parsed = JSON.parse(savedCart) as CartItem[];
+      this.items = Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error("Failed to parse cart from local storage", e);
+      this.items = [];
+    }
+  }
+
+  private setupPersistence() {
     autorun(() => {
-      localStorage.setItem('recipe_cart', JSON.stringify(this.items));
+      try {
+        window.localStorage.setItem("recipe_cart", JSON.stringify(this.items));
+      } catch (e) {
+        console.error("Failed to save cart to local storage", e);
+      }
     });
   }
 
@@ -59,7 +73,7 @@ class CartStore {
     this.syncing = true;
     try {
       await fetch(apiUrls.cartAdd, {
-        method: 'POST',
+        method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({
           product: CART_SYNC_PRODUCT_ID,
@@ -67,7 +81,7 @@ class CartStore {
         }),
       });
     } catch (e) {
-      console.error('Error syncing add to cart with Strapi', e);
+      console.error("Error syncing add to cart with Strapi", e);
     } finally {
       runInAction(() => {
         this.syncing = false;
@@ -80,7 +94,7 @@ class CartStore {
     this.syncing = true;
     try {
       await fetch(apiUrls.cartRemove, {
-        method: 'POST',
+        method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({
           product: CART_SYNC_PRODUCT_ID,
@@ -88,7 +102,7 @@ class CartStore {
         }),
       });
     } catch (e) {
-      console.error('Error syncing remove from cart with Strapi', e);
+      console.error("Error syncing remove from cart with Strapi", e);
     } finally {
       runInAction(() => {
         this.syncing = false;
@@ -96,13 +110,13 @@ class CartStore {
     }
   }
 
-  addItem(payload: Omit<CartItem, 'quantity'>, quantity = 1) {
+  addItem(payload: Omit<CartItem, "quantity">, quantity = 1) {
     const existing = this.items.find(
-      (i) => i.documentId === payload.documentId,
+      (i) => i.documentId === payload.documentId
     );
     const newIngredients = (payload.ingredients || []).map((ing) => ({
       ...ing,
-      amount: ing.amount || '',
+      amount: ing.amount || "",
     }));
 
     if (existing) {
@@ -110,8 +124,8 @@ class CartStore {
       existing.ingredients = existing.ingredients || [];
 
       newIngredients.forEach((ing) => {
-        if (!existing.ingredients.find((e) => e.id === ing.id)) {
-          existing.ingredients.push({ ...ing });
+        if (!existing!.ingredients.find((e) => e.id === ing.id)) {
+          existing!.ingredients.push({ ...ing });
         }
       });
     } else {
@@ -129,9 +143,7 @@ class CartStore {
     void this.syncRemove(qty);
   }
 
-  // --- Ingredient editing ---
-
-  addIngredient(documentId: string, name: string, amount: string = '') {
+  addIngredient(documentId: string, name: string, amount: string = "") {
     const item = this.items.find((i) => i.documentId === documentId);
     if (!item || !name.trim()) return;
     const newId = Date.now();
@@ -145,14 +157,16 @@ class CartStore {
   removeIngredient(documentId: string, ingredientId: number) {
     const item = this.items.find((i) => i.documentId === documentId);
     if (!item) return;
-    item.ingredients = item.ingredients.filter((ing) => ing.id !== ingredientId);
+    item.ingredients = item.ingredients.filter(
+      (ing) => ing.id !== ingredientId
+    );
   }
 
   updateIngredient(
     documentId: string,
     ingredientId: number,
     name: string,
-    amount: string,
+    amount: string
   ) {
     const item = this.items.find((i) => i.documentId === documentId);
     if (!item || !name.trim()) return;
@@ -164,7 +178,6 @@ class CartStore {
   }
 
   setQuantity(documentId: string, quantity: number) {
-    
     const item = this.items.find((i) => i.documentId === documentId);
     if (!item) return;
 

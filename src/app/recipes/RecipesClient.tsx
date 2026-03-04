@@ -3,49 +3,28 @@
 import React from "react";
 import s from "./Recipes.module.scss";
 import { motion } from "framer-motion";
-import MultiDropdown from "@/shared/components/MultiDropdown";
 import { observer } from "mobx-react-lite";
-import { heroVariants, gridContainerVariants } from "./config";
+import { gridContainerVariants } from "./config";
 import { useRecipesPage } from "./useRecipesPage";
+import RecipesSearchFilter from "./components/RecipesSearchFilter";
 import RecipesState from "./components/RecipesState";
 import RecipeCard from "./components/RecipeCard";
 import RecipesPagination from "./components/RecipesPagination";
 
-const RecipesClient: React.FC = () => {
+type Props = {
+  initialSearchParams?: {
+    search?: string;
+    categories?: string;
+    page?: string;
+  };
+};
+
+const RecipesClient: React.FC<Props> = observer(({ initialSearchParams }) => {
   const { store, categoryOptions, handleChangePage, handleSearchClick } =
-    useRecipesPage();
+    useRecipesPage(initialSearchParams);
 
   return (
     <div className={s.recipes}>
-      <section className={s.recipes__hero}>
-        <div className={s.recipes__heroOverlay}></div>
-        <motion.div
-          className={s.recipes__heroContent}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={heroVariants}
-        >
-          <motion.h1
-            className={s.recipes__heroTitle}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-          >
-            Recipes
-          </motion.h1>
-          <motion.p
-            className={s.recipes__heroSubtitle}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.9 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-          >
-            Find the perfect food and drink ideas for every occasion, from
-            weeknight dinners to holiday feasts.
-          </motion.p>
-        </motion.div>
-      </section>
-
       <motion.section
         className={s.recipes__searchFilterSection}
         data-section="search-filter"
@@ -55,47 +34,14 @@ const RecipesClient: React.FC = () => {
         transition={{ type: "spring", stiffness: 100 }}
       >
         <div className={s.recipes__container}>
-          <div className={s.recipes__searchFilterBar}>
-            <div className={s.recipes__searchInputGroup}>
-              <input
-                type="text"
-                placeholder="Enter dishes"
-                className={s.recipes__searchInput}
-                value={store.draftSearchQuery}
-                onChange={(e) => {
-                  store.setDraftSearchQuery(e.target.value);
-                }}
-              />
-            </div>
-            <div className={s.recipes__filterGroup}>
-              <MultiDropdown
-                className={s.recipes__multiDropdown}
-                options={categoryOptions}
-                value={categoryOptions.filter((opt) =>
-                  store.draftSelectedCategoryIds.includes(Number(opt.key)),
-                )}
-                onChange={(val) => {
-                  const ids = val
-                    .map((v) => Number(v.key))
-                    .filter((id) => !Number.isNaN(id));
-                  store.setDraftSelectedCategoryIds(ids);
-                }}
-                getTitle={(val) => {
-                  if (val.length === 0) return "All categories";
-                  if (val.length <= 3) return val.map((v) => v.value).join(", ");
-                  return `${val.length} categories`;
-                }}
-              />
-
-              <button
-                className={s.recipes__searchBtn}
-                type="button"
-                onClick={handleSearchClick}
-              >
-                Search
-              </button>
-            </div>
-          </div>
+          <RecipesSearchFilter
+            searchValue={store.draftSearchQuery}
+            onSearchChange={(v) => store.setDraftSearchQuery(v)}
+            categoryOptions={categoryOptions}
+            selectedCategoryIds={store.draftSelectedCategoryIds}
+            onCategoryChange={(ids) => store.setDraftSelectedCategoryIds(ids)}
+            onSearchClick={handleSearchClick}
+          />
         </div>
       </motion.section>
 
@@ -128,7 +74,6 @@ const RecipesClient: React.FC = () => {
       </section>
     </div>
   );
-};
+});
 
-export default observer(RecipesClient);
-
+export default RecipesClient;

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import Icon from '@/components/icons/Icon';
-import type { IconProps } from '@/components/icons/Icon';
+import Icon from '@/shared/components/icons/Icon';
+import type { IconProps } from '@/shared/components/icons/Icon';
 
 const SearchIcon: React.FC<IconProps> = (props) => {
   return (

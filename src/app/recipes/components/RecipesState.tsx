@@ -1,3 +1,6 @@
+"use client";
+
+//recipes/components/RecipeState.tsx
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Loader from '@/shared/components/Loader';

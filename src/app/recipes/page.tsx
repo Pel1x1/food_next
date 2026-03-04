@@ -1,15 +1,24 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
+import RecipesHero from "./components/RecipesHero";
 import RecipesClient from "./RecipesClient";
 import { getRecipesServer } from "@/shared/api/recipes";
+import Loader from "@/shared/components/Loader";
 
 export const metadata: Metadata = {
   title: "Recipes",
 };
 
+type SearchParams = {
+  search?: string;
+  categories?: string;
+  page?: string;
+};
+
 export default async function RecipesPage({
   searchParams,
 }: {
-  searchParams?: { search?: string; categories?: string; page?: string };
+  searchParams?: SearchParams;
 }) {
   const categories =
     searchParams?.categories
@@ -19,11 +28,22 @@ export default async function RecipesPage({
 
   const page = searchParams?.page ? Number(searchParams.page) || 1 : 1;
 
+  // Server-side prefetch — кладёт данные в кэш Next.js
   await getRecipesServer({
     search: searchParams?.search ?? "",
     categories,
     page,
   });
 
-  return <RecipesClient />;
+  return (
+    <>
+      {/* Статичный герой рендерится на сервере без JS */}
+      <RecipesHero />
+
+      {/* useSearchParams внутри RecipesClient → нужен Suspense */}
+      <Suspense fallback={<Loader size="l" />}>
+        <RecipesClient initialSearchParams={searchParams} />
+      </Suspense>
+    </>
+  );
 }

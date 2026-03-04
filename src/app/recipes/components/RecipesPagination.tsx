@@ -1,3 +1,6 @@
+"use client";
+
+//recipes/components/RecipePagination.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
 import ArrowDownIcon from '@/shared/components/icons/ArrowDownIcon';

@@ -1,4 +1,3 @@
-//recipesStore.ts
 import { makeAutoObservable, runInAction } from 'mobx';
 import axios from 'axios';
 import qs from 'qs';
@@ -72,43 +71,50 @@ export class RecipesStore {
   }
 
   async applyFilters() {
-    this.searchQuery = this.draftSearchQuery;
-    this.selectedCategoryIds = this.draftSelectedCategoryIds;
+    this.searchQuery = this.draftSearchQuery.trim();
+    this.selectedCategoryIds = [...this.draftSelectedCategoryIds];
     this.currentPage = 1;
     await this.fetchRecipes();
   }
 
   hydrateFromQuery(params: URLSearchParams) {
-    const search = params.get('search') ?? '';
+    // Безопасное чтение. Если search пустой или его нет, будет ''
+    const search = params.get('search') || '';
     const pageParam = params.get('page');
     const categoriesParam = params.get('categories');
 
     const page = pageParam ? Number(pageParam) : 1;
-    const categoryIds =
-      categoriesParam
-        ?.split(',')
-        .map((id) => Number(id))
-        .filter((id) => !Number.isNaN(id)) ?? [];
+    const categoryIds = categoriesParam
+      ? categoriesParam
+          .split(',')
+          .map((id) => Number(id))
+          .filter((id) => !Number.isNaN(id))
+      : [];
 
     this.searchQuery = search;
     this.currentPage = page > 0 ? page : 1;
     this.selectedCategoryIds = categoryIds;
 
     this.draftSearchQuery = search;
-    this.draftSelectedCategoryIds = categoryIds;
+    this.draftSelectedCategoryIds = [...categoryIds];
   }
 
   toQueryParams() {
     const params: Record<string, string> = {};
-    if (this.searchQuery.trim()) {
+    
+    // ДОБАВЛЯЕМ только если не пустые, иначе ключ даже не создастся
+    if (this.searchQuery.trim() !== '') {
       params.search = this.searchQuery.trim();
     }
+    
     if (this.selectedCategoryIds.length > 0) {
       params.categories = this.selectedCategoryIds.join(',');
     }
+    
     if (this.currentPage > 1) {
       params.page = String(this.currentPage);
     }
+    
     return params;
   }
 
@@ -128,47 +134,56 @@ export class RecipesStore {
       this.loading = true;
       this.error = null;
 
-      const params: Record<string, unknown> = {
+      // НЕ передаем изначально пустой объект filters
+      const params: Record<string, any> = {
         populate: ['images'],
-        filters: {},
         pagination: {
           page: this.currentPage,
           pageSize: ITEMS_PER_PAGE,
         },
       };
 
-      if (this.searchQuery.trim()) {
-        (params.filters as any).name = {
+      const filters: any = {};
+      let hasFilters = false;
+
+      if (this.searchQuery.trim() !== '') {
+        filters.name = {
           $containsi: this.searchQuery.trim(),
         };
+        hasFilters = true;
       }
 
       if (this.selectedCategoryIds.length > 0) {
-        (params.filters as any).category = {
+        filters.category = {
           id: {
             $in: this.selectedCategoryIds,
           },
         };
+        hasFilters = true;
       }
 
+      // Привязываем filters к параметрам только если они реально есть
+      if (hasFilters) {
+        params.filters = filters;
+      }
+
+      // qs.stringify проигнорирует пустые объекты, если их нет
       const query = qs.stringify(params, { encodeValuesOnly: true });
 
       const res = await axios.get<StrapiListResponse<RecipeFromApi>>(
-        `${apiUrls.recipes}?${query}`,
+        `${apiUrls.recipes}?${query}`
       );
 
-      const mapped: RecipeItem[] = res.data.data.map((item) => {
-        return {
-          id: item.id,
-          documentId: item.documentId,
-          name: item.name,
-          summary: item.summary || 'Нет описания',
-          totalTime: String(item.totalTime ?? '0'),
-          calories: String(item.calories ?? '0'),
-          category: item.category?.title ?? 'All',
-          image: getRecipeImageUrl(item.images),
-        };
-      });
+      const mapped: RecipeItem[] = res.data.data.map((item) => ({
+        id: item.id,
+        documentId: item.documentId,
+        name: item.name,
+        summary: item.summary || 'Нет описания',
+        totalTime: String(item.totalTime ?? '0'),
+        calories: String(item.calories ?? '0'),
+        category: item.category?.title ?? 'All',
+        image: getRecipeImageUrl(item.images),
+      }));
 
       runInAction(() => {
         this.recipes = mapped;
