@@ -62,6 +62,33 @@ const RecipePage: React.FC = () => {
     );
   }
 
+  
+
+  const handleShare = async () => {
+    const shareData = {
+      title: recipe.name,
+      text: recipe.summary?.replace(/<[^>]+>/g, "").slice(0, 100) + "…",
+      url: window.location.href,
+    };
+
+    if (navigator.share && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        // пользователь отменил — игнорируем
+        if ((err as Error).name !== "AbortError") console.error(err);
+      }
+    } else {
+      // Фоллбэк: копируем ссылку в буфер
+      await navigator.clipboard.writeText(window.location.href);
+      alert("Link copied to clipboard!");
+    }
+  };
+
+  const handlePrint = () => {
+  window.open(`/print/${documentId}`, "_blank");
+};
+
   const imageUrl = store.mainImageUrl;
   const caloriesNumber = Number(recipe.calories) || 0;
   const isInCart = cartStore.items.some(
@@ -69,7 +96,7 @@ const RecipePage: React.FC = () => {
   );
 
   return (
-    <div className={styles.recipe}>
+    <div className={styles.recipe} >
       <div className={styles.recipe__hero}>
         <div className={styles.recipe__heroImgContainer}>
           <img
@@ -256,15 +283,18 @@ const RecipePage: React.FC = () => {
               <button
                 className={styles.recipe__actionBtnCircle}
                 title="Share"
+                onClick={handleShare}
               >
                 <LuShare2 size={20} />
               </button>
               <button
                 className={styles.recipe__actionBtnCircle}
                 title="Print"
+                onClick={handlePrint}
               >
                 <LuPrinter size={20} />
               </button>
+
             </div>
           </div>
         </aside>
