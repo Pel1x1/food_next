@@ -12,7 +12,7 @@ import TimerIcon from "@/shared/components/icons/TimerIcon";
 import { favouritesStore } from "@/stores/favouritesStore";
 import type { RecipeItem } from "@/shared/entity/recipe";
 import { AppRoutePaths } from "@/app/routes";
-import { cardVariants } from "@/app/recipes/config";
+import { cardVariants } from "./RecipeAnimations";
 import { observer } from "mobx-react-lite";
 
 type Props = {

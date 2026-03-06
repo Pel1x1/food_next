@@ -11,6 +11,8 @@ import { useLocalObservable } from 'mobx-react-lite';
 import axios from 'axios';
 import type { StrapiListResponse, RecipeFromApi } from '@/shared/entity/recipe';
 import { apiUrls } from '@/shared/config/api';
+import { motion} from 'framer-motion';
+import {headerVariants, articleVariants} from "./components/ProfileAnimations"
 
 const Profile: React.FC = () => {
   const statsStore = useLocalObservable(() => ({
@@ -60,60 +62,96 @@ const Profile: React.FC = () => {
   return (
     <div className={styles.profilePage}>
       <div className={styles.profileContainer}>
-        <header className={styles.profileHeader}>
+        <motion.header
+            className={styles.profileHeader}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={headerVariants}
+          >
           <Text view="title" tag="h1">
             Profile
           </Text>
           <Text view="p-16" className={styles.profileSubtitle}>
             Personal statistics and preferences for your cooking journey.
           </Text>
-        </header>
+        </motion.header>
 
         <section className={styles.statsGrid}>
-          <article className={styles.statCard}>
+          <motion.article 
+            className={styles.statCard} 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={articleVariants}
+          >
             <Text view="p-16" className={styles.statLabel}>
               Total recipes
             </Text>
             <Text view="title" tag="p" className={styles.statValue}>
               {statsStore.loading ? '...' : statsStore.totalRecipes}
             </Text>
-          </article>
+          </motion.article>
 
-          <article className={styles.statCard}>
+          <motion.article 
+            className={styles.statCard} 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={articleVariants}
+          >
             <Text view="p-16" className={styles.statLabel}>
               Favourites
             </Text>
             <Text view="title" tag="p" className={styles.statValue}>
               {favouritesCount}
             </Text>
-          </article>
+          </motion.article >
 
-          <article className={styles.statCard}>
+          <motion.article 
+            className={styles.statCard} 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={articleVariants}
+          >
             <Text view="p-16" className={styles.statLabel}>
               Items in cart
             </Text>
             <Text view="title" tag="p" className={styles.statValue}>
               {cartItemsCount}
             </Text>
-          </article>
+          </motion.article >
 
-          <article className={styles.statCard}>
+          <motion.article 
+            className={styles.statCard} 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={articleVariants}
+          >
             <Text view="p-16" className={styles.statLabel}>
               Recipes in cart
             </Text>
             <Text view="title" tag="p" className={styles.statValue}>
               {uniqueCartRecipes}
             </Text>
-          </article>
+          </motion.article >
 
-          <article className={styles.statCardWide}>
+          <motion.article 
+            className={styles.statCardWide}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={articleVariants}
+          >
             <Text view="p-16" className={styles.statLabel}>
               Estimated calories in cart
             </Text>
             <Text view="title" tag="p" className={styles.statValue}>
               {totalCartCalories} kcal
             </Text>
-          </article>
+          </motion.article>
         </section>
         {/* 
         <section className={styles.preferencesSection}>

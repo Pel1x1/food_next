@@ -1,4 +1,4 @@
-import { type Variants } from 'framer-motion';
+import {type Variants } from 'framer-motion';
 
 export const headerVariants: Variants = {
   hidden: { opacity: 0, y: -20 },
@@ -9,7 +9,7 @@ export const headerVariants: Variants = {
   },
 };
 
-export const cardVariants: Variants = {
+export const articleVariants: Variants = {
   hidden: { opacity: 0, y: 50, scale: 0.95 },
   visible: {
     opacity: 1,

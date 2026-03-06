@@ -16,7 +16,7 @@ import Text from '@/shared/components/Text';
 import { cartStore } from '@/stores/cartStore';
 import styles from './Cart.module.scss';
 import { motion } from 'framer-motion';
-import { headerVariants } from '../../app/cart/components/Cart.animations';
+import { headerVariants, cardVariants } from '../../app/cart/components/Cart.animations';
 import IngredientRow from '../../app/cart/components/IngredientRow';
 import AddIngredientRow from '../../app/cart/components/AddIngredientRow';
 import { AppRoutePaths } from '@/app/routes';
@@ -60,7 +60,14 @@ const Cart: React.FC = () => {
               {/* Items */}
               <div className={styles.cartList}>
                 {items.map((item) => (
-                  <div key={item.documentId} className={styles.cartItem}>
+                  <motion.div 
+                    key={item.documentId} 
+                    className={styles.cartItem}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={cardVariants}
+                  >
                     {/* Image */}
                     <div className={styles.cartItemImg}>
                       <img src={item.image} alt={item.name} />
@@ -133,12 +140,17 @@ const Cart: React.FC = () => {
                         </ul>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
 
               {/*Summary*/}
-              <aside className={styles.cartSummary}>
+              <motion.div className={styles.cartSummary}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  variants={cardVariants}
+                >
                 <Text view="p-20" tag="h3">
                   Order Summary
                 </Text>
@@ -203,7 +215,7 @@ const Cart: React.FC = () => {
                 >
                   Clear cart
                 </button>
-              </aside>
+              </motion.div>
             </div>
           </div>
         ) : (

@@ -9,40 +9,15 @@ import ArrowDownIcon from '@/shared/components/icons/ArrowDownIcon';
 import Card from '@/shared/components/Card';
 import Loader from '@/shared/components/Loader';
 import Text from '@/shared/components/Text';
-import { motion, AnimatePresence, type Variants } from 'framer-motion';
+import { motion, AnimatePresence} from 'framer-motion';
 import { observer, useLocalObservable } from 'mobx-react-lite';
 import { RecipesStore } from '@/stores/recipesStore';
 import { favouritesStore } from '@/stores/favouritesStore';
 import TimerIcon from '@/shared/components/icons/TimerIcon';
 import { AppRoutePaths } from '@/app/routes';
+import {gridContainerVariants, cardVariants, headerVariants} from "./components/CategoryAnimations";
 
-export const gridContainerVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
-    },
-  },
-};
 
-export const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 50, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { type: 'spring', stiffness: 100, damping: 15, mass: 1 },
-  },
-  exit: { opacity: 0, scale: 0.9, transition: { duration: 0.2 } },
-};
-
-export const headerVariants: Variants = {
-  hidden: { opacity: 0, y: -20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
-};
 
 const Category: React.FC = () => {
   const store = useLocalObservable(() => new RecipesStore());
@@ -57,13 +32,21 @@ const Category: React.FC = () => {
   }, [searchParams, store]);
 
   useEffect(() => {
-    const params = store.toQueryParams();
-    const next = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      next.set(key, value);
-    });
-    router.replace(`?${next.toString()}`, { scroll: false });
-  }, [store.searchQuery, store.currentPage, store.selectedCategoryIds.join(','), router]);
+  const params = store.toQueryParams();
+  const next = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    next.set(key, value);
+  });
+
+  // Текущее положение
+  const current = new URLSearchParams(window.location.search);
+
+  // Если строки одинаковые — ничего не делаем, чтобы не вызвать новый рендер/эффект
+  if (current.toString() === next.toString()) return;
+
+  router.replace(`?${next.toString()}`, { scroll: false });
+}, [store.searchQuery, store.currentPage, store.selectedCategoryIds.join(','), router]);
 
   const handleChangePage = (page: number) => {
     store.setPage(page);

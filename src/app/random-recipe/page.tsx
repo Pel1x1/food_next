@@ -4,21 +4,13 @@ import React, { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { motion, AnimatePresence} from "framer-motion";
 import { LuDices, LuTimer, LuFlame, LuArrowRight } from "react-icons/lu";
 import Text from "@/shared/components/Text";
 import { randomRecipeStore } from "@/stores/randomRecipeStore";
 import styles from "./RandomRecipe.module.scss";
 import { AppRoutePaths } from "@/app/routes";
 
-export const headerVariants: Variants = {
-  hidden: { opacity: 0, y: -20 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { duration: 0.6, ease: 'easeOut' },
-  },
-};
 
 const RandomRecipe: React.FC = () => {
   useEffect(() => {

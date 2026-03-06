@@ -19,8 +19,10 @@ import {
 import { categoriesStore } from '@/stores/categoriesStore';
 import styles from './Categories.module.scss';
 import { useRouter } from 'next/navigation';
-import { motion, type Variants } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { AppRoutePaths } from '@/app/routes';
+import {gridContainerVariants, cardVariants, headerVariants} from "./components/CategoriesAnimations";
+import Text from '@/shared/components/Text';
 
 const CategoryIcon: React.FC<{ name: string }> = ({ name }) => {
   const lowerName = name.toLowerCase();
@@ -42,52 +44,6 @@ const CategoryIcon: React.FC<{ name: string }> = ({ name }) => {
   return <LuChefHat size={32} />;
 };
 
-export const gridContainerVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-
-export const cardVariants: Variants = {
-  hidden: { 
-    opacity: 0, 
-    y: 50, 
-    scale: 0.95,
-  },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    scale: 1,
-    transition: { 
-      type: 'spring',
-      stiffness: 100, 
-      damping: 15,
-      mass: 1,
-    },
-  },
-  exit: { 
-    opacity: 0, 
-    scale: 0.9, 
-    transition: { duration: 0.2 },
-  },
-};
-
-
-export const headerVariants: Variants = {
-  hidden: { opacity: 0, y: -20 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { duration: 0.6, ease: 'easeOut' },
-  },
-};
 
 
 const Categories: React.FC = () => {
@@ -114,8 +70,8 @@ const Categories: React.FC = () => {
           viewport={{ once: true }}
           variants={headerVariants}
         >
-          <h1>Explore Categories</h1>
-          <p>Browse our hand-picked collection by cuisine or type.</p>
+          <Text tag="h1">Explore Categories</Text>
+          <Text tag='p' color='secondary'>Browse our hand-picked collection by cuisine or type.</Text>
         </motion.header>
 
         {loading && <div className={styles.categoriesMessage}>Loading categories...</div>}

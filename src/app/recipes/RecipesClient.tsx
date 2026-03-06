@@ -4,7 +4,7 @@ import React from "react";
 import s from "./Recipes.module.scss";
 import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
-import { gridContainerVariants } from "./config";
+import { gridContainerVariants } from "./components/RecipeAnimations";
 import { useRecipesPage } from "./useRecipesPage";
 import RecipesSearchFilter from "./components/RecipesSearchFilter";
 import RecipesState from "./components/RecipesState";

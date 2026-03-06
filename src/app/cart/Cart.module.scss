@@ -51,7 +51,6 @@
   padding: 24px;
   border-radius: $radius-xl;
   box-shadow: $card-shadow;
-  transition: transform 0.2s ease;
 
   &:hover {
     transform: translateX(6px);

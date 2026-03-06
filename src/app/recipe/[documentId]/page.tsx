@@ -75,11 +75,9 @@ const RecipePage: React.FC = () => {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        // пользователь отменил — игнорируем
         if ((err as Error).name !== "AbortError") console.error(err);
       }
     } else {
-      // Фоллбэк: копируем ссылку в буфер
       await navigator.clipboard.writeText(window.location.href);
       alert("Link copied to clipboard!");
     }

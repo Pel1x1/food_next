@@ -5,10 +5,9 @@ import { observer, useLocalObservable } from 'mobx-react-lite';
 import Text from '@/shared/components/Text';
 import styles from './MealPlanning.module.scss';
 import { createMealPlanningStore } from '@/stores/mealPlanningStore';
-import { headerVariants } from '@/app/categories/page';
-import { motion, AnimatePresence, type Variants } from 'framer-motion';
+import { motion, AnimatePresence} from 'framer-motion';
 import { LuEgg, LuBeef,LuSalad } from 'react-icons/lu';
-
+import {containerVariants, dayVariants, cardVariants, popupVariants, overlayVariants, headerVariants} from "./components/MealPlanningAnimations"
 
 const MEAL_TYPES = [
   { label: 'Breakfast', icon: <LuEgg size={24}/> },
@@ -16,52 +15,7 @@ const MEAL_TYPES = [
   { label: 'Dinner',    icon: <LuSalad size={24}/> },
 ] as const;
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
-};
 
-const dayVariants: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: 'spring',
-      stiffness: 300,
-      damping: 24,
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-
-const popupVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.9, y: 20 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: { type: 'spring', stiffness: 350, damping: 25 },
-  },
-  exit: {
-    opacity: 0,
-    scale: 0.9,
-    y: 20,
-    transition: { duration: 0.2 },
-  },
-};
-
-const overlayVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.2 } },
-  exit: { opacity: 0, transition: { duration: 0.2 } },
-};
 
 const MealPlanning: React.FC = () => {
   const store = useLocalObservable(createMealPlanningStore);
@@ -92,7 +46,14 @@ const MealPlanning: React.FC = () => {
 
         <div className={styles.layout}>
           {/* Левая колонка с формой */}
-          <form className={styles.formCard} onSubmit={handleSubmit}>
+          <motion.form 
+            className={styles.formCard} 
+            onSubmit={handleSubmit}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={cardVariants}
+          >
             <div className={styles.fieldGroup}>
               <Text view="p-16" className={styles.fieldLabel}>Time frame</Text>
               <Text view="p-16" className={styles.fieldDescription}>
@@ -163,7 +124,7 @@ const MealPlanning: React.FC = () => {
             </button>
 
             {store.error && <div className={styles.error}>{store.error}</div>}
-          </form>
+          </motion.form>
 
           {/* Правая колонка с результатами */}
           <div className={styles.content}>
