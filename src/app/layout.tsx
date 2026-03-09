@@ -2,6 +2,13 @@ import "@/app/globals.scss";
 import Header from "@/shared/components/Header";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
+import { Roboto } from "next/font/google";
+
+const roboto = Roboto({
+  weight: "400",
+  subsets: ["latin", "cyrillic"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -14,7 +21,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>
+      <body className={roboto.className}>
         <Header />
         <main>{children}</main>
       </body>
