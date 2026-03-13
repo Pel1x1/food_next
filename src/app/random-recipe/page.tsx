@@ -7,12 +7,12 @@ import Image from "next/image";
 import { motion, AnimatePresence} from "framer-motion";
 import { LuDices, LuTimer, LuFlame, LuArrowRight } from "react-icons/lu";
 import Text from "@/shared/components/Text";
-import { randomRecipeStore } from "@/stores/randomRecipeStore";
 import styles from "./RandomRecipe.module.scss";
 import { AppRoutePaths } from "@/app/routes";
-
+import { useStore } from "@/shared/hooks/useStore";
 
 const RandomRecipe: React.FC = () => {
+  const {randomRecipeStore} = useStore();
   useEffect(() => {
     return () => randomRecipeStore.reset();
   }, []);
@@ -88,7 +88,6 @@ const RandomRecipe: React.FC = () => {
                       sizes="(max-width: 768px) 100vw, 400px"
                       className={styles.image}
                     />
-                    <div className={styles.categoryBadge}>{recipe.category}</div>
                   </div>
                   
                   <div className={styles.infoBox}>

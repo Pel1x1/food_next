@@ -17,29 +17,34 @@ import {
   LuShoppingCart,
   LuCheck,
 } from "react-icons/lu";
+import { FaVk, FaTelegramPlane, FaWhatsapp } from "react-icons/fa";
 import Loader from "@/shared/components/Loader";
-import { observer, useLocalObservable } from "mobx-react-lite";
-import { RecipeStore } from "@/stores/recipeStore";
-import { favouritesStore } from "@/stores/favouritesStore";
-import { cartStore } from "@/stores/cartStore";
+import { observer } from "mobx-react-lite";
+import DOMPurify from 'dompurify';
+import { useStore } from '@/shared/hooks/useStore';
 import { AppRoutePaths } from "@/app/routes";
 
 const RecipePage: React.FC = () => {
+  const { cartStore, favouritesStore, recipeStore } = useStore();
   const params = useParams<{ documentId: string }>();
   const documentId = params?.documentId;
 
-  const store = useLocalObservable(() => new RecipeStore());
-
   useEffect(() => {
     if (documentId) {
-      void store.fetchRecipe(documentId);
+      void recipeStore.fetchRecipe(documentId);
     }
-  }, [documentId, store]);
+  }, [documentId, recipeStore]);
 
-  const recipe = store.recipe;
+  useEffect(() => {
+    if (!recipeStore.loading && recipeStore.recipe) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [recipeStore.loading, recipeStore.recipe]);
+
+  const recipe = recipeStore.recipe;
   const isSaved = recipe ? favouritesStore.isFavourite(recipe.documentId) : false;
 
-  if (store.loading) {
+  if (recipeStore.loading) {
     return (
       <div className={styles.recipe}>
         <div className={styles.recipe__container}>
@@ -49,7 +54,7 @@ const RecipePage: React.FC = () => {
     );
   }
 
-  if (store.error || !recipe || !documentId) {
+  if (recipeStore.error || !recipe || !documentId) {
     return (
       <div className={styles.recipe}>
         <div className={styles.recipe__container}>
@@ -84,10 +89,25 @@ const RecipePage: React.FC = () => {
   };
 
   const handlePrint = () => {
-  window.open(`/print/${documentId}`, "_blank");
-};
+    window.open(`/print/${documentId}`, "_blank");
+  };
 
-  const imageUrl = store.mainImageUrl;
+  const shareToVk = () => {
+    const url = `https://vk.com/share.php?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(recipe.name)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const shareToTelegram = () => {
+    const url = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(recipe.name)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const shareToWhatsApp = () => {
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(recipe.name + " " + window.location.href)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const imageUrl = recipeStore.mainImageUrl;
   const caloriesNumber = Number(recipe.calories) || 0;
   const isInCart = cartStore.items.some(
     (item) => item.documentId === recipe.documentId
@@ -218,7 +238,7 @@ const RecipePage: React.FC = () => {
                   Ingredients
                 </h3>
                 <ul className={styles.recipe__ingredientsList}>
-                  {recipe.ingradients?.map((ingredient) => (
+                  {recipe.ingredients?.map((ingredient) => (
                     <li key={ingredient.id}>
                       <span className={styles.recipe__dot}></span>
                       <Text view="p-16">{ingredient.name}</Text>
@@ -245,7 +265,7 @@ const RecipePage: React.FC = () => {
                   totalTime: recipe.totalTime || "0",
                   calories: recipe.calories || "0",
                   category: recipe.category?.name || "All",
-                  image: store.mainImageUrl,
+                  image: recipeStore.mainImageUrl,
                 });
               }}
             >
@@ -261,10 +281,10 @@ const RecipePage: React.FC = () => {
                 cartStore.addItem({
                   documentId: recipe.documentId,
                   name: recipe.name,
-                  image: store.mainImageUrl,
+                  image: recipeStore.mainImageUrl,
                   calories: Number(recipe.calories) || 0,
                   totalTime: recipe.totalTime || "0",
-                  ingredients: (recipe.ingradients || []).map((ing) => ({
+                  ingredients: (recipe.ingredients || []).map((ing) => ({
                     id: ing.id,
                     name: ing.name,
                     amount: ing.amount || "",
@@ -278,21 +298,21 @@ const RecipePage: React.FC = () => {
             </button>
 
             <div className={styles.recipe__secondaryActions}>
-              <button
-                className={styles.recipe__actionBtnCircle}
-                title="Share"
-                onClick={handleShare}
-              >
-                <LuShare2 size={20} />
-              </button>
-              <button
-                className={styles.recipe__actionBtnCircle}
-                title="Print"
-                onClick={handlePrint}
-              >
+              <button className={styles.recipe__actionBtnCircle} title="Print" onClick={handlePrint}>
                 <LuPrinter size={20} />
               </button>
-
+              <button className={styles.recipe__actionBtnCircle} title="Share (Native)" onClick={handleShare}>
+                <LuShare2 size={20} />
+              </button>
+              <button className={styles.recipe__actionBtnCircle} title="Share in VK" onClick={shareToVk}>
+                <FaVk size={20} color="#0077FF"/>
+              </button>
+              <button className={styles.recipe__actionBtnCircle} title="Share in Telegram" onClick={shareToTelegram}>
+                <FaTelegramPlane size={20} color="#229ED9"/>
+              </button>
+              <button className={styles.recipe__actionBtnCircle} title="Share in WhatsApp" onClick={shareToWhatsApp}>
+                <FaWhatsapp size={20} color="#25D366"/>
+              </button>
             </div>
           </div>
         </aside>
@@ -303,7 +323,9 @@ const RecipePage: React.FC = () => {
               <h2 className={styles.recipe__sectionTitle}>Summary</h2>
               <div
                 className={styles.recipe__summaryText}
-                dangerouslySetInnerHTML={{ __html: recipe.summary }}
+                dangerouslySetInnerHTML={{ 
+                  __html: typeof window !== 'undefined' ? DOMPurify.sanitize(recipe.summary) : recipe.summary 
+                }}
               />
             </section>
           </div>

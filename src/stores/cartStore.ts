@@ -2,7 +2,7 @@ import { makeAutoObservable, runInAction, autorun } from "mobx";
 import { apiUrls } from "@/shared/config/api";
 
 export type CartIngredient = {
-  id: number;
+  id: string | number;
   name: string;
   amount: string;
   unit?: string;
@@ -18,9 +18,7 @@ export type CartItem = {
   ingredients: CartIngredient[];
 };
 
-const JWT_TOKEN =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mjg5LCJpYXQiOjE3NzIyNjQ5ODYsImV4cCI6MTc3NDg1Njk4Nn0.WsJWADPnTe6H3SHJ7_QzLjMaF1r9Md5ZjEvw_u5d5aE";
-
+const JWT_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mjg5LCJpYXQiOjE3NzIyNjQ5ODYsImV4cCI6MTc3NDg1Njk4Nn0.WsJWADPnTe6H3SHJ7_QzLjMaF1r9Md5ZjEvw_u5d5aE";
 const CART_SYNC_PRODUCT_ID = 156;
 
 const getHeaders = () => ({
@@ -28,26 +26,36 @@ const getHeaders = () => ({
   Authorization: `Bearer ${JWT_TOKEN}`,
 });
 
-class CartStore {
+export class CartStore {
   items: CartItem[] = [];
-  syncing = false;
+  
+  syncRequestsCount = 0;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
 
-    // Читаем и подписываемся на localStorage только в браузере
     if (typeof window !== "undefined") {
       this.hydrateFromLocalStorage();
       this.setupPersistence();
     }
   }
 
+  get isSyncing() {
+    return this.syncRequestsCount > 0;
+  }
+
   private hydrateFromLocalStorage() {
     try {
       const savedCart = window.localStorage.getItem("recipe_cart");
       if (!savedCart) return;
-      const parsed = JSON.parse(savedCart) as CartItem[];
-      this.items = Array.isArray(parsed) ? parsed : [];
+      const parsed = JSON.parse(savedCart);
+      
+      this.items = Array.isArray(parsed) 
+        ? parsed.map((item: any) => ({
+            ...item,
+            ingredients: item.ingredients || item.ingradients || [],
+          })) 
+        : [];
     } catch (e) {
       console.error("Failed to parse cart from local storage", e);
       this.items = [];
@@ -70,7 +78,8 @@ class CartStore {
 
   private async syncAdd(quantity: number) {
     if (quantity <= 0) return;
-    this.syncing = true;
+    
+    runInAction(() => { this.syncRequestsCount++; });
     try {
       await fetch(apiUrls.cartAdd, {
         method: "POST",
@@ -83,15 +92,14 @@ class CartStore {
     } catch (e) {
       console.error("Error syncing add to cart with Strapi", e);
     } finally {
-      runInAction(() => {
-        this.syncing = false;
-      });
+      runInAction(() => { this.syncRequestsCount--; });
     }
   }
 
   private async syncRemove(quantity: number) {
     if (quantity <= 0) return;
-    this.syncing = true;
+    
+    runInAction(() => { this.syncRequestsCount++; });
     try {
       await fetch(apiUrls.cartRemove, {
         method: "POST",
@@ -104,16 +112,12 @@ class CartStore {
     } catch (e) {
       console.error("Error syncing remove from cart with Strapi", e);
     } finally {
-      runInAction(() => {
-        this.syncing = false;
-      });
+      runInAction(() => { this.syncRequestsCount--; });
     }
   }
 
   addItem(payload: Omit<CartItem, "quantity">, quantity = 1) {
-    const existing = this.items.find(
-      (i) => i.documentId === payload.documentId
-    );
+    const existing = this.items.find((i) => i.documentId === payload.documentId);
     const newIngredients = (payload.ingredients || []).map((ing) => ({
       ...ing,
       amount: ing.amount || "",
@@ -122,7 +126,6 @@ class CartStore {
     if (existing) {
       existing.quantity += quantity;
       existing.ingredients = existing.ingredients || [];
-
       newIngredients.forEach((ing) => {
         if (!existing!.ingredients.find((e) => e.id === ing.id)) {
           existing!.ingredients.push({ ...ing });
@@ -131,7 +134,6 @@ class CartStore {
     } else {
       this.items.push({ ...payload, quantity, ingredients: newIngredients });
     }
-
     void this.syncAdd(quantity);
   }
 
@@ -146,7 +148,11 @@ class CartStore {
   addIngredient(documentId: string, name: string, amount: string = "") {
     const item = this.items.find((i) => i.documentId === documentId);
     if (!item || !name.trim()) return;
-    const newId = Date.now();
+    
+    const newId = typeof crypto !== 'undefined' && crypto.randomUUID 
+      ? crypto.randomUUID() 
+      : String(Date.now() + Math.random());
+
     item.ingredients.push({
       id: newId,
       name: name.trim(),
@@ -154,20 +160,13 @@ class CartStore {
     });
   }
 
-  removeIngredient(documentId: string, ingredientId: number) {
+  removeIngredient(documentId: string, ingredientId: string | number) {
     const item = this.items.find((i) => i.documentId === documentId);
     if (!item) return;
-    item.ingredients = item.ingredients.filter(
-      (ing) => ing.id !== ingredientId
-    );
+    item.ingredients = item.ingredients.filter((ing) => ing.id !== ingredientId);
   }
 
-  updateIngredient(
-    documentId: string,
-    ingredientId: number,
-    name: string,
-    amount: string
-  ) {
+  updateIngredient(documentId: string, ingredientId: string | number, name: string, amount: string) {
     const item = this.items.find((i) => i.documentId === documentId);
     if (!item || !name.trim()) return;
     const ing = item.ingredients.find((i) => i.id === ingredientId);
@@ -180,31 +179,20 @@ class CartStore {
   setQuantity(documentId: string, quantity: number) {
     const item = this.items.find((i) => i.documentId === documentId);
     if (!item) return;
-
     const prev = item.quantity;
-
     if (quantity <= 0) {
       this.removeItem(documentId);
       return;
     }
-
     item.quantity = quantity;
-
     const diff = quantity - prev;
-    if (diff > 0) {
-      void this.syncAdd(diff);
-    } else if (diff < 0) {
-      void this.syncRemove(-diff);
-    }
+    if (diff > 0) void this.syncAdd(diff);
+    else if (diff < 0) void this.syncRemove(-diff);
   }
 
   clear() {
     const total = this.totalItems;
     this.items = [];
-    if (total > 0) {
-      void this.syncRemove(total);
-    }
+    if (total > 0) void this.syncRemove(total);
   }
 }
-
-export const cartStore = new CartStore();

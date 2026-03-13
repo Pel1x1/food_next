@@ -3,6 +3,8 @@ import Header from "@/shared/components/Header";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
+import { StoreProvider } from "@/shared/providers/StoreProvider";
+import { ThemeWrapper } from "@/shared/components/ThemeWrapper/ThemeWrapper";
 
 const roboto = Roboto({
   weight: "400",
@@ -22,8 +24,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className={roboto.className}>
-        <Header />
-        <main>{children}</main>
+        <StoreProvider>
+          <ThemeWrapper>
+            <Header />
+            <main>{children}</main>
+          </ThemeWrapper>
+        </StoreProvider>
       </body>
     </html>
   );

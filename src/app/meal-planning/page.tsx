@@ -4,7 +4,7 @@ import React from 'react';
 import { observer, useLocalObservable } from 'mobx-react-lite';
 import Text from '@/shared/components/Text';
 import styles from './MealPlanning.module.scss';
-import { createMealPlanningStore } from '@/stores/mealPlanningStore';
+import { useStore } from '@/shared/hooks/useStore';
 import { motion, AnimatePresence} from 'framer-motion';
 import { LuEgg, LuBeef,LuSalad } from 'react-icons/lu';
 import {containerVariants, dayVariants, cardVariants, popupVariants, overlayVariants, headerVariants} from "./components/MealPlanningAnimations"
@@ -18,8 +18,8 @@ const MEAL_TYPES = [
 
 
 const MealPlanning: React.FC = () => {
-  const store = useLocalObservable(createMealPlanningStore);
-
+  const {mealPlanningStore}= useStore();
+  const store = mealPlanningStore;
   const handleSubmit: React.FormEventHandler = (e) => {
     e.preventDefault();
     void store.generatePlan();

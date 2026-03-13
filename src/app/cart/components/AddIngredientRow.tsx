@@ -3,12 +3,14 @@
 // components/AddIngredientRow.tsx
 import React, { useState } from 'react';
 import { LuPlus } from 'react-icons/lu';
-import { cartStore } from '@/stores/cartStore';
+import { useStore } from '@/shared/hooks/useStore';
+
 import styles from '../Cart.module.scss';
 
 type AddIngredientRowProps = { documentId: string };
 
 const AddIngredientRow: React.FC<AddIngredientRowProps> = ({ documentId }) => {
+  const {cartStore}= useStore();
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
 

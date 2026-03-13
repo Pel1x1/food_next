@@ -4,7 +4,9 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { LuPencil, LuCheck, LuX } from 'react-icons/lu';
-import { cartStore, type CartIngredient } from '@/stores/cartStore';
+import { useStore } from '@/shared/hooks/useStore';
+
+import {type CartIngredient } from '@/stores/cartStore';
 import styles from '../Cart.module.scss';
 
 type IngredientRowProps = {
@@ -13,6 +15,7 @@ type IngredientRowProps = {
 };
 
 const IngredientRow: React.FC<IngredientRowProps> = observer(({ documentId, ingredient }) => {
+  const {cartStore}= useStore();
   const [editing, setEditing] = useState(false);
   const [nameDraft, setNameDraft] = useState(ingredient.name);
   const [amountDraft, setAmountDraft] = useState(ingredient.amount ?? '');
@@ -49,10 +52,10 @@ const IngredientRow: React.FC<IngredientRowProps> = observer(({ documentId, ingr
               if (e.key === 'Escape') cancel();
             }}
           />
-          <button className={styles.iconBtn} onClick={confirm} title="Save">
+          <button type="button" className={styles.iconBtn} onClick={confirm} title="Save">
             <LuCheck size={14} />
           </button>
-          <button className={styles.iconBtn} onClick={cancel} title="Cancel">
+          <button type="button" className={styles.iconBtn} onClick={cancel} title="Cancel">
             <LuX size={14} />
           </button>
         </>
@@ -68,6 +71,7 @@ const IngredientRow: React.FC<IngredientRowProps> = observer(({ documentId, ingr
             )}
           </span>
           <button
+            type="button"
             className={styles.iconBtn}
             onClick={() => {
               setNameDraft(ingredient.name);
@@ -79,6 +83,7 @@ const IngredientRow: React.FC<IngredientRowProps> = observer(({ documentId, ingr
             <LuPencil size={14} />
           </button>
           <button
+            type="button"
             className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
             onClick={() => cartStore.removeIngredient(documentId, ingredient.id)}
             title="Remove"

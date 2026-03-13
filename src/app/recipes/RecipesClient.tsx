@@ -50,7 +50,7 @@ const RecipesClient: React.FC<Props> = observer(({ initialSearchParams }) => {
           <RecipesState
             loading={store.loading}
             error={store.error}
-            hasContent={store.paginatedRecipes.length > 0}
+            hasContent={store.recipes.length > 0}
           >
             <motion.div
               className={s.recipes__grid}
@@ -59,7 +59,7 @@ const RecipesClient: React.FC<Props> = observer(({ initialSearchParams }) => {
               whileInView="visible"
               viewport={{ once: true, amount: 0.1 }}
             >
-              {store.paginatedRecipes.map((recipe) => (
+              {store.recipes.map((recipe ) => (
                 <RecipeCard key={recipe.id} recipe={recipe} />
               ))}
             </motion.div>

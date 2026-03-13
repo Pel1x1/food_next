@@ -16,7 +16,8 @@ import {
   LuEgg,
   LuDroplets,
 } from 'react-icons/lu';
-import { categoriesStore } from '@/stores/categoriesStore';
+import { useStore } from '@/shared/hooks/useStore';
+
 import styles from './Categories.module.scss';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -25,6 +26,7 @@ import {gridContainerVariants, cardVariants, headerVariants} from "./components/
 import Text from '@/shared/components/Text';
 
 const CategoryIcon: React.FC<{ name: string }> = ({ name }) => {
+  
   const lowerName = name.toLowerCase();
   
   if (lowerName.includes('main')) return <LuBeef size={32} />;
@@ -47,6 +49,7 @@ const CategoryIcon: React.FC<{ name: string }> = ({ name }) => {
 
 
 const Categories: React.FC = () => {
+  const {categoriesStore}= useStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -86,6 +89,7 @@ const Categories: React.FC = () => {
           >
             {categories.map((cat) => (
               <motion.div 
+               onClick={() => handleCategoryClick(cat.id)}
                 key={cat.id} 
                 className={styles.categoryCard}
                 variants={cardVariants}

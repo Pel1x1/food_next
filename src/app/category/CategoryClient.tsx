@@ -11,16 +11,17 @@ import Loader from '@/shared/components/Loader';
 import Text from '@/shared/components/Text';
 import { motion, AnimatePresence} from 'framer-motion';
 import { observer, useLocalObservable } from 'mobx-react-lite';
-import { RecipesStore } from '@/stores/recipesStore';
-import { favouritesStore } from '@/stores/favouritesStore';
+import { useStore } from '@/shared/hooks/useStore';
 import TimerIcon from '@/shared/components/icons/TimerIcon';
 import { AppRoutePaths } from '@/app/routes';
 import {gridContainerVariants, cardVariants, headerVariants} from "./components/CategoryAnimations";
+import DOMPurify from 'dompurify';
 
 
 
 const Category: React.FC = () => {
-  const store = useLocalObservable(() => new RecipesStore());
+  const { favouritesStore, recipesStore}= useStore();
+  const store = recipesStore;
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -118,8 +119,8 @@ const Category: React.FC = () => {
                   viewport={{ once: true, amount: 0.1 }}
                 >
                   <AnimatePresence mode="popLayout">
-                    {store.paginatedRecipes.length > 0 ? (
-                      store.paginatedRecipes.map((recipe) => (
+                    {store.recipes.length > 0 ? (
+                      store.recipes.map((recipe) => (
                         <motion.div
                           key={recipe.id}
                           layout
@@ -129,6 +130,7 @@ const Category: React.FC = () => {
                           exit="exit"
                           whileHover={{ y: -8, transition: { duration: 0.3 } }}
                           style={{ height: '100%' }}
+                          
                         >
                           <Link
                             href={AppRoutePaths.recipeById(recipe.documentId)}
@@ -147,7 +149,11 @@ const Category: React.FC = () => {
                               }
                               title={recipe.name}
                               subtitle={
-                                <span dangerouslySetInnerHTML={{ __html: recipe.summary }} />
+                                <span 
+                                  dangerouslySetInnerHTML={{ 
+                                    __html: DOMPurify.sanitize(recipe.summary) 
+                                  }} 
+                                />
                               }
                               contentSlot={
                                 <Text view="p-20" weight="medium" color="accent">

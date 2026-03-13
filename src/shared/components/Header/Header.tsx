@@ -1,17 +1,24 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect} from "react";
 import Link from "next/link";
 import classNames from "classnames";
 import { usePathname } from "next/navigation";
 import LogoIcon from "@/shared/components/icons/LogoIcon";
 import { LuHeart, LuUser, LuMenu, LuX } from "react-icons/lu";
+import { useStore } from "@/shared/hooks/useStore";
 import styles from "./Header.module.scss";
 import { AppRoutePaths } from "@/app/routes";
+import FavouritesBadge from './FavouritesBadge';
+
 
 const Header: React.FC = () => {
+  const { favouritesStore } = useStore();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const [isMounted, setIsMounted] = useState(false);
+
 
   const navLinks = [
     { name: "Recipes", path: AppRoutePaths.home },
@@ -25,6 +32,10 @@ const Header: React.FC = () => {
 
   const toggleMobile = () => setMobileOpen((v) => !v);
   const closeMobile = () => setMobileOpen(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <header className={styles.header}>
@@ -55,10 +66,11 @@ const Header: React.FC = () => {
         <div className={styles.headerActions}>
           <Link
             href={AppRoutePaths.favourites}
-            className={styles.actionButton}
+            className={classNames(styles.actionButton, styles.iconWrapper)}
             title="Favourites"
           >
             <LuHeart size={20} />
+            <FavouritesBadge />
           </Link>
           <Link
             href={AppRoutePaths.profile}

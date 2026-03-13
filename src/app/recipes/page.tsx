@@ -28,7 +28,6 @@ export default async function RecipesPage({
 
   const page = searchParams?.page ? Number(searchParams.page) || 1 : 1;
 
-  // Server-side prefetch — кладёт данные в кэш Next.js
   await getRecipesServer({
     search: searchParams?.search ?? "",
     categories,
@@ -37,10 +36,8 @@ export default async function RecipesPage({
 
   return (
     <>
-      {/* Статичный герой рендерится на сервере без JS */}
       <RecipesHero />
 
-      {/* useSearchParams внутри RecipesClient → нужен Suspense */}
       <Suspense fallback={<Loader size="l" />}>
         <RecipesClient initialSearchParams={searchParams} />
       </Suspense>

@@ -1,15 +1,11 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import axios from 'axios';
 import { apiUrls } from '@/shared/config/api';
+import { getErrorMessage } from '@/shared/utils/error';
+import type { RecipeCategory } from '@/shared/entity/recipe';
 
-export type MealCategory = {
-  id: number;
-  documentId: string;
-  title: string;
-};
-
-class CategoriesStore {
-  categories: MealCategory[] = [];
+export class CategoriesStore {
+  categories: RecipeCategory[] = [];
   loading = false;
   error: string | null = null;
 
@@ -21,28 +17,14 @@ class CategoriesStore {
     this.loading = true;
     this.error = null;
     try {
-      const res = await axios.get<{ data: MealCategory[] }>(
-        apiUrls.mealCategories,
-      );
+      const res = await axios.get<{ data: RecipeCategory[] }>(apiUrls.mealCategories);
       runInAction(() => {
         this.categories = res.data.data.filter((cat) => cat.title !== 'All');
       });
     } catch (e: unknown) {
-      const msg = axios.isAxiosError(e)
-        ? e.response?.data?.message ?? e.message
-        : e instanceof Error
-        ? e.message
-        : 'Ошибка загрузки категорий';
-
-      runInAction(() => {
-        this.error = msg;
-      });
+      runInAction(() => { this.error = getErrorMessage(e, 'Ошибка загрузки категорий'); });
     } finally {
-      runInAction(() => {
-        this.loading = false;
-      });
+      runInAction(() => { this.loading = false; });
     }
   }
 }
-
-export const categoriesStore = new CategoriesStore();

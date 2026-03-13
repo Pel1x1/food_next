@@ -1,34 +1,29 @@
 "use client";
 
-import React from "react";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import Text from "@/shared/components/Text";
 import Button from "@/shared/components/Button";
 
-type Props = {
+export default function GlobalError({
+  error,
+  reset,
+}: {
   error: Error & { digest?: string };
   reset: () => void;
-};
-
-export default function GlobalError({ error, reset }: Props) {
+}) {
   useEffect(() => {
     console.error(error);
   }, [error]);
 
   return (
-    <html lang="en">
-      <body>
-        <div style={{ padding: "80px 24px", textAlign: "center" }}>
-          <Text view="title" tag="h1">
-            Something went wrong
-          </Text>
-          <Text view="p-16">
-            Please try again or go back to the homepage.
-          </Text>
-          <Button onClick={reset}>Try again</Button>
-        </div>
-      </body>
-    </html>
+    // Убрали <html lang="en"> и <body>
+    <div style={{ padding: "80px 24px", textAlign: "center" }}>
+      <Text view="title" tag="h1">
+        Something went wrong
+      </Text>
+      <div style={{ marginTop: 24 }}>
+        <Button onClick={() => reset()}>Try again</Button>
+      </div>
+    </div>
   );
 }
-

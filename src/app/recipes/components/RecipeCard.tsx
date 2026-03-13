@@ -9,7 +9,7 @@ import Button from "@/shared/components/Button";
 import Card from "@/shared/components/Card";
 import Text from "@/shared/components/Text";
 import TimerIcon from "@/shared/components/icons/TimerIcon";
-import { favouritesStore } from "@/stores/favouritesStore";
+import { useStore } from '@/shared/hooks/useStore';
 import type { RecipeItem } from "@/shared/entity/recipe";
 import { AppRoutePaths } from "@/app/routes";
 import { cardVariants } from "./RecipeAnimations";
@@ -20,8 +20,8 @@ type Props = {
 };
 
 const RecipeCard: React.FC<Props> = ({ recipe }) => {
+    const {favouritesStore}= useStore();
   const isFavourite = favouritesStore.isFavourite(recipe.documentId);
-
   const handleToggleFavourite: React.MouseEventHandler<HTMLButtonElement> = (
     e,
   ) => {

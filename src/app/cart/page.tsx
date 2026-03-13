@@ -1,7 +1,7 @@
 "use client";
 
 // Cart.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from "next/link";
 import { observer } from 'mobx-react-lite';
 import {
@@ -11,9 +11,10 @@ import {
   LuPlus,
   LuMinus,
   LuX,
+  LuPartyPopper,
 } from 'react-icons/lu';
 import Text from '@/shared/components/Text';
-import { cartStore } from '@/stores/cartStore';
+import { useStore } from '@/shared/hooks/useStore';
 import styles from './Cart.module.scss';
 import { motion } from 'framer-motion';
 import { headerVariants, cardVariants } from '../../app/cart/components/Cart.animations';
@@ -22,17 +23,28 @@ import AddIngredientRow from '../../app/cart/components/AddIngredientRow';
 import { AppRoutePaths } from '@/app/routes';
 
 
-
 const Cart: React.FC = () => {
+  const {cartStore}= useStore();
+  
   const items = cartStore.items;
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleConfirmCheckout = () => {
-    setIsModalOpen(false);
-    cartStore.clear();
-    alert('Thank you! Your list has been marked as purchased.');
+    setIsSuccess(true);
   };
-
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  if (!isMounted) {
+    return null; 
+  }
+  const handleCloseSuccess = () => {
+    setIsSuccess(false);
+    setIsModalOpen(false);
+    
+  };
 
 
   const allIngredients = items.flatMap((item) => item.ingredients || []);
@@ -238,37 +250,57 @@ const Cart: React.FC = () => {
       {isModalOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
-            <div className={styles.modalHeader}>
-              <Text view="p-20" weight="medium" tag="h3">
-                Are you sure?
-              </Text>
-              <button
-                className={styles.iconBtn}
-                onClick={() => setIsModalOpen(false)}
-              >
-                <LuX size={20} />
-              </button>
-            </div>
+            {!isSuccess ? (
+              <>
+                <div className={styles.modalHeader}>
+                  <Text view="p-20" weight="medium" tag="h3">
+                    Are you sure?
+                  </Text>
+                  <button
+                    className={styles.iconBtn}
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    <LuX size={20} />
+                  </button>
+                </div>
 
-            <Text view="p-16" className={styles.modalText}>
-              Did you buy everything on your shopping list? You have{' '}
-              {allIngredients.length} items.
-            </Text>
+                <Text view="p-16" className={styles.modalText}>
+                  Did you buy everything on your shopping list? You have{' '}
+                  {allIngredients.length} items.
+                </Text>
 
-            <div className={styles.modalActions}>
-              <button
-                className={styles.modalCancelBtn}
-                onClick={() => setIsModalOpen(false)}
-              >
-                No, wait
-              </button>
-              <button
-                className={styles.modalConfirmBtn}
-                onClick={handleConfirmCheckout}
-              >
-                Yes, I bought everything!
-              </button>
-            </div>
+                <div className={styles.modalActions}>
+                  <button
+                    className={styles.modalCancelBtn}
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    No, wait
+                  </button>
+                  <button
+                    className={styles.modalConfirmBtn}
+                    onClick={handleConfirmCheckout}
+                  >
+                    Yes, I bought everything!
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className={styles.successModal}>
+                <div className={styles.successIconWrapper}>
+                  <LuPartyPopper size={48} className={styles.successIcon} />
+                </div>
+                <Text view="title" tag="h2" className={styles.successTitle}>
+                  Awesome!
+                </Text>
+                <Text view="p-16" className={styles.successText}>
+                  Have a great time cooking your delicious meals!
+                </Text>
+                
+                <Link href={AppRoutePaths.home} onClick={handleCloseSuccess} className={styles.successBtn}>
+                  Find more recipes
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}

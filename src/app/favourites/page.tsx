@@ -10,13 +10,14 @@ import Card from '@/shared/components/Card';
 import Loader from '@/shared/components/Loader';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
-import { favouritesStore } from '@/stores/favouritesStore';
+import { useStore } from '@/shared/hooks/useStore';
 import { LuHeart } from 'react-icons/lu';
 import { AppRoutePaths } from '@/app/routes';
 import {gridContainerVariants, cardVariants, headerVariants} from "./components/FavouritesAnimations";
 
 
 const Favourites: React.FC = () => {
+  const {favouritesStore}= useStore();
   const favouriteRecipes = favouritesStore.items;
   const isLoading = favouritesStore.isLoading;
 

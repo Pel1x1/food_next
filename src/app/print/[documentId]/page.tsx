@@ -3,21 +3,22 @@
 import Link from "next/link";
 import React, { useEffect } from "react";
 import { useParams } from "next/navigation";
-import { observer, useLocalObservable } from "mobx-react-lite";
-import { RecipeStore } from "@/stores/recipeStore";
+import { observer} from "mobx-react-lite";
 import styles from "./Print.module.scss";
 import {
   LuTimer,
   LuUsers,
   LuFlame,
 } from "react-icons/lu";
+import { useStore } from '@/shared/hooks/useStore';
+
 
 const PrintRecipePage: React.FC = () => {
   const params = useParams<{ documentId: string }>();
   const documentId = params?.documentId;
-
-  const store = useLocalObservable(() => new RecipeStore());
-
+  const {recipeStore}= useStore();
+  const store = recipeStore; 
+  
   useEffect(() => {
     if (documentId) {
       store.fetchRecipe(documentId).then(() => {
@@ -73,7 +74,7 @@ const PrintRecipePage: React.FC = () => {
         <div>
           <h2>Ingredients</h2>
           <ul className={styles.list}>
-            {recipe.ingradients?.map((ing) => (
+            {recipe.ingredients?.map((ing) => (
               <li key={ing.id}>
                 {ing.name} {ing.amount && `- ${ing.amount} ${ing.unit || ""}`}
               </li>

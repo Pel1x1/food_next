@@ -14,7 +14,7 @@ export default function NotFoundPage() {
         The page you are looking for does not exist or has been moved.
       </Text>
       <Link href={AppRoutePaths.home}>
-        <Button>Go to homepage</Button>
+        <Button >Go to homepage</Button>
       </Link>
     </div>
   );

@@ -4,9 +4,7 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import styles from './Profile.module.scss';
 import Text from '@/shared/components/Text';
-import { favouritesStore } from '@/stores/favouritesStore';
-import { cartStore } from '@/stores/cartStore';
-import { themeStore } from '@/stores/themeStore';
+import { useStore } from '@/shared/hooks/useStore';
 import { useLocalObservable } from 'mobx-react-lite';
 import axios from 'axios';
 import type { StrapiListResponse, RecipeFromApi } from '@/shared/entity/recipe';
@@ -15,6 +13,7 @@ import { motion} from 'framer-motion';
 import {headerVariants, articleVariants} from "./components/ProfileAnimations"
 
 const Profile: React.FC = () => {
+  const {cartStore, themeStore, favouritesStore}= useStore();
   const statsStore = useLocalObservable(() => ({
     totalRecipes: 0,
     loading: false,
@@ -153,7 +152,7 @@ const Profile: React.FC = () => {
             </Text>
           </motion.article>
         </section>
-        {/* 
+        
         <section className={styles.preferencesSection}>
           <div className={styles.preferenceCard}>
             <div>
@@ -189,7 +188,6 @@ const Profile: React.FC = () => {
             </button>
           </div>
         </section>
-*/}
         {statsStore.error && (
           <div className={styles.errorText}>{statsStore.error}</div>
         )}

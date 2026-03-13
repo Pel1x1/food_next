@@ -3,7 +3,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import type { FavouriteRecipe } from '@/shared/utils/favourites';
 import { FavouritesApi } from '@/shared/utils/favourites';
 
-class FavouritesStore {
+export class FavouritesStore {
   items: FavouriteRecipe[] = [];
   isLoading: boolean = false;
 
@@ -74,5 +74,3 @@ class FavouritesStore {
     }
   }
 }
-
-export const favouritesStore = new FavouritesStore();
