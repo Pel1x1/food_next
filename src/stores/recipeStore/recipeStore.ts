@@ -15,6 +15,12 @@ export class RecipeStore {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
+  static init(initialRecipe: RecipeFromApi | null): RecipeStore {
+    const store = new RecipeStore();
+    store.recipe = initialRecipe;
+    return store;
+  }
+
   get mainImageUrl(): string {
     return getRecipeMainImageUrl(this.recipe?.images);
   }
@@ -31,13 +37,13 @@ export class RecipeStore {
 
       const res = await axios.get<StrapiSingleResponse<any>>(
         `${apiUrls.recipes}/${documentId}?${query}`
-      ); 
+      );
 
-      runInAction(() => { 
+      runInAction(() => {
         const data = res.data.data;
         this.recipe = {
           ...data,
-          ingredients: data.ingradients || data.ingredients, 
+          ingredients: data.ingradients || data.ingredients,
         };
       });
     } catch (e: unknown) {

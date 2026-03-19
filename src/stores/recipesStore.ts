@@ -8,6 +8,15 @@ import { mapRecipeItem } from '@/shared/utils/mappers';
 
 const ITEMS_PER_PAGE = 9;
 
+export type RecipesStoreInitialData = {
+  recipes: RecipeItem[];
+  total: number;
+  categories: RecipeCategory[];
+  searchQuery: string;
+  selectedCategoryIds: number[];
+  page: number;
+};
+
 export class RecipesStore {
   recipes: RecipeItem[] = [];
   categories: RecipeCategory[] = [];
@@ -23,10 +32,23 @@ export class RecipesStore {
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
-        reaction(
+    reaction(
       () => [this.searchQuery, this.selectedCategoryIds.length],
       () => { this.currentPage = 1; }
     );
+  }
+
+  static init(data: RecipesStoreInitialData): RecipesStore {
+    const store = new RecipesStore();
+    store.recipes = data.recipes;
+    store.total = data.total;
+    store.categories = data.categories;
+    store.searchQuery = data.searchQuery;
+    store.selectedCategoryIds = data.selectedCategoryIds;
+    store.draftSearchQuery = data.searchQuery;
+    store.draftSelectedCategoryIds = [...data.selectedCategoryIds];
+    store.currentPage = data.page;
+    return store;
   }
 
   get categoryOptions() {
@@ -88,7 +110,6 @@ export class RecipesStore {
       this.loading = true;
       this.error = null;
 
-      // Убрано any, используем Record
       const filters: Record<string, unknown> = {};
       let hasFilters = false;
 

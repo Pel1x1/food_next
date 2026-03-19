@@ -1,28 +1,31 @@
 import { CartStore } from './cartStore';
 import { ThemeStore } from './themeStore';
 import { FavouritesStore } from './favouritesStore';
-import { CategoriesStore } from './categoriesStore';
-import { RecipesStore } from './recipesStore';
-import {RandomRecipeStore} from "./randomRecipeStore"
-import { RecipeStore} from "./recipeStore/recipeStore";
-import {MealPlanningStore} from "./mealPlanningStore/mealPlanningStore"
+
+import type { FavouriteRecipe } from '@/shared/utils/favourites';
+
+export type RootStoreInitialData = {
+  favourites?: FavouriteRecipe[];
+};
+
 export class RootStore { 
   cartStore: CartStore;
   themeStore: ThemeStore;
   favouritesStore: FavouritesStore;
-  categoriesStore: CategoriesStore;
-  recipesStore: RecipesStore;
-  randomRecipeStore: RandomRecipeStore;
-  recipeStore : RecipeStore;
-  mealPlanningStore : MealPlanningStore;
+
   constructor() {
     this.cartStore = new CartStore();
     this.themeStore = new ThemeStore();
     this.favouritesStore = new FavouritesStore();
-    this.categoriesStore = new CategoriesStore();
-    this.recipesStore = new RecipesStore();
-    this.randomRecipeStore = new RandomRecipeStore();
-    this.recipeStore = new RecipeStore
-    this.mealPlanningStore = new MealPlanningStore();
+  }
+
+  static init(initialData?: RootStoreInitialData): RootStore {
+    const store = new RootStore();
+
+    if (initialData?.favourites) {
+      store.favouritesStore = FavouritesStore.init(initialData.favourites);
+    }
+
+    return store;
   }
 }

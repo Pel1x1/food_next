@@ -9,10 +9,10 @@ import { LuDices, LuTimer, LuFlame, LuArrowRight } from "react-icons/lu";
 import Text from "@/shared/components/Text";
 import styles from "./RandomRecipe.module.scss";
 import { AppRoutePaths } from "@/app/routes";
-import { useStore } from "@/shared/hooks/useStore";
+import { RandomRecipeStoreProvider, useRandomRecipeStore } from "@/shared/providers/RandomRecipeStoreProvider";
 
-const RandomRecipe: React.FC = () => {
-  const {randomRecipeStore} = useStore();
+const RandomRecipeInner: React.FC = () => {
+  const randomRecipeStore = useRandomRecipeStore();
   useEffect(() => {
     return () => randomRecipeStore.reset();
   }, []);
@@ -149,4 +149,12 @@ const RandomRecipe: React.FC = () => {
   );
 };
 
-export default observer(RandomRecipe);
+const RandomRecipe = observer(RandomRecipeInner);
+
+export default function RandomRecipePage() {
+  return (
+    <RandomRecipeStoreProvider>
+      <RandomRecipe />
+    </RandomRecipeStoreProvider>
+  );
+}

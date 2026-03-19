@@ -49,9 +49,10 @@ const Card: React.FC<CardProps> = ({
       className={classNames(styles.card, className)}
       onClick={onClick}
       onKeyDown={onKeyDown}
-      role={isClickable ? 'button' : undefined}
-      tabIndex={isClickable ? 0 : undefined}
+      role={isClickable ? 'button' : 'presentation'}
+      tabIndex={isClickable ? 0 : -1}
     >
+
       <div className={styles.imageWrapper}>
         <img className={styles.image} src={image} alt="" />
       </div>

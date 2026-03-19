@@ -1,10 +1,10 @@
 "use client";
 
 import React from 'react';
-import { observer, useLocalObservable } from 'mobx-react-lite';
+import { observer } from 'mobx-react-lite';
 import Text from '@/shared/components/Text';
 import styles from './MealPlanning.module.scss';
-import { useStore } from '@/shared/hooks/useStore';
+import { MealPlanningStoreProvider, useMealPlanningStore } from "@/shared/providers/MealPlanningStoreProvider";
 import { motion, AnimatePresence} from 'framer-motion';
 import { LuEgg, LuBeef,LuSalad } from 'react-icons/lu';
 import {containerVariants, dayVariants, cardVariants, popupVariants, overlayVariants, headerVariants} from "./components/MealPlanningAnimations"
@@ -18,8 +18,7 @@ const MEAL_TYPES = [
 
 
 const MealPlanning: React.FC = () => {
-  const {mealPlanningStore}= useStore();
-  const store = mealPlanningStore;
+  const store = useMealPlanningStore();
   const handleSubmit: React.FormEventHandler = (e) => {
     e.preventDefault();
     void store.generatePlan();
@@ -301,4 +300,12 @@ const MealPlanning: React.FC = () => {
   );
 };
 
-export default observer(MealPlanning);
+const MealPlanningObserved = observer(MealPlanning);
+
+export default function MealPlanningPage() {
+  return (
+    <MealPlanningStoreProvider>
+      <MealPlanningObserved />
+    </MealPlanningStoreProvider>
+  );
+}

@@ -9,7 +9,12 @@ export class FavouritesStore {
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
-    this.load();
+  }
+
+  static init(initialItems: FavouriteRecipe[]): FavouritesStore {
+    const store = new FavouritesStore();
+    store.items = initialItems;
+    return store;
   }
 
   async load() {
@@ -38,7 +43,7 @@ export class FavouritesStore {
       runInAction(() => {
         this.items = this.items.filter((r) => r.documentId !== recipe.documentId);
       });
-      
+
       const success = await FavouritesApi.remove(recipe.id);
       if (!success) {
         runInAction(() => {
@@ -49,7 +54,7 @@ export class FavouritesStore {
       runInAction(() => {
         this.items = [...this.items, recipe];
       });
-      
+
       const success = await FavouritesApi.add(recipe.id);
       if (!success) {
         runInAction(() => {
@@ -61,7 +66,7 @@ export class FavouritesStore {
 
   async remove(recipe: FavouriteRecipe) {
     const previousItems = [...this.items];
-    
+
     runInAction(() => {
       this.items = this.items.filter((r) => r.documentId !== recipe.documentId);
     });

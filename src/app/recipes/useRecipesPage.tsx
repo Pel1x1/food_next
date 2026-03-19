@@ -2,10 +2,8 @@
 
 import { useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useLocalObservable } from "mobx-react-lite";
 import type { Option } from "@/shared/components/MultiDropdown";
-import { RecipesStore } from '@/stores/recipesStore';
-import { useStore } from '@/shared/hooks/useStore';
+import { useRecipesStore } from "@/shared/providers/RecipesStoreProvider";
 
 type InitialSearchParams = {
   search?: string;
@@ -14,8 +12,7 @@ type InitialSearchParams = {
 };
 
 export const useRecipesPage = (initialSearchParams?: InitialSearchParams) => {
-  const {recipesStore}= useStore();
-  const store = recipesStore;
+  const store = useRecipesStore();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -34,8 +31,8 @@ export const useRecipesPage = (initialSearchParams?: InitialSearchParams) => {
   }
 
   useEffect(() => {
-    void store.fetchCategories();
-    void store.fetchRecipes();
+    if (store.categories.length === 0) void store.fetchCategories();
+    if (store.recipes.length === 0) void store.fetchRecipes();
   }, []);
 
   useEffect(() => {

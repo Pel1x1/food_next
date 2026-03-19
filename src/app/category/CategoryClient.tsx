@@ -10,8 +10,9 @@ import Card from '@/shared/components/Card';
 import Loader from '@/shared/components/Loader';
 import Text from '@/shared/components/Text';
 import { motion, AnimatePresence} from 'framer-motion';
-import { observer, useLocalObservable } from 'mobx-react-lite';
+import { observer } from 'mobx-react-lite';
 import { useStore } from '@/shared/hooks/useStore';
+import { useRecipesStore } from "@/shared/providers/RecipesStoreProvider";
 import TimerIcon from '@/shared/components/icons/TimerIcon';
 import { AppRoutePaths } from '@/app/routes';
 import {gridContainerVariants, cardVariants, headerVariants} from "./components/CategoryAnimations";
@@ -20,16 +21,16 @@ import DOMPurify from 'dompurify';
 
 
 const Category: React.FC = () => {
-  const { favouritesStore, recipesStore}= useStore();
-  const store = recipesStore;
+  const { favouritesStore } = useStore();
+  const store = useRecipesStore();
   const searchParams = useSearchParams();
   const router = useRouter();
 
   useEffect(() => {
     if (!searchParams) return;
     store.hydrateFromQuery(searchParams);
-    void store.fetchCategories();
-    void store.fetchRecipes();
+    if (store.categories.length === 0) void store.fetchCategories();
+    if (store.recipes.length === 0) void store.fetchRecipes();
   }, [searchParams, store]);
 
   useEffect(() => {

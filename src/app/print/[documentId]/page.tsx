@@ -10,14 +10,13 @@ import {
   LuUsers,
   LuFlame,
 } from "react-icons/lu";
-import { useStore } from '@/shared/hooks/useStore';
+import { RecipeStoreProvider, useRecipeStore } from "@/shared/providers/RecipeStoreProvider";
 
 
 const PrintRecipePage: React.FC = () => {
   const params = useParams<{ documentId: string }>();
   const documentId = params?.documentId;
-  const {recipeStore}= useStore();
-  const store = recipeStore; 
+  const store = useRecipeStore();
   
   useEffect(() => {
     if (documentId) {
@@ -109,4 +108,12 @@ const PrintRecipePage: React.FC = () => {
   );
 };
 
-export default observer(PrintRecipePage);
+const PrintRecipe = observer(PrintRecipePage);
+
+export default function PrintRecipeRoute() {
+  return (
+    <RecipeStoreProvider initialRecipe={null}>
+      <PrintRecipe />
+    </RecipeStoreProvider>
+  );
+}

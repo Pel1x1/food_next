@@ -51,30 +51,34 @@ export async function getRecipesServer(
     });
   }
 
-  const res = await fetch(`${apiUrls.recipes}?${searchParams.toString()}`, {
-    next: { revalidate: 60 },
-  });
+  try {
+    const res = await fetch(`${apiUrls.recipes}?${searchParams.toString()}`, {
+      next: { revalidate: 60 },
+    });
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch recipes");
+    if (!res.ok) {
+      return { recipes: [], total: 0 };
+    }
+
+    const data = (await res.json()) as StrapiListResponse<RecipeFromApi>;
+
+    const mapped: RecipeItem[] = data.data.map((item) => ({
+      id: item.id,
+      documentId: item.documentId,
+      name: item.name,
+      summary: item.summary || "Нет описания",
+      totalTime: String(item.totalTime ?? "0"),
+      calories: String(item.calories ?? "0"),
+      category: item.category?.title ?? "All",
+      image: getRecipeImageUrl(item.images),
+    }));
+
+    return {
+      recipes: mapped,
+      total: data.meta.pagination.total ?? mapped.length,
+    };
+  } catch {
+    return { recipes: [], total: 0 };
   }
-
-  const data = (await res.json()) as StrapiListResponse<RecipeFromApi>;
-
-  const mapped: RecipeItem[] = data.data.map((item) => ({
-    id: item.id,
-    documentId: item.documentId,
-    name: item.name,
-    summary: item.summary || "Нет описания",
-    totalTime: String(item.totalTime ?? "0"),
-    calories: String(item.calories ?? "0"),
-    category: item.category?.title ?? "All",
-    image: getRecipeImageUrl(item.images),
-  }));
-
-  return {
-    recipes: mapped,
-    total: data.meta.pagination.total ?? mapped.length,
-  };
 }
 

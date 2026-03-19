@@ -13,6 +13,12 @@ export class CategoriesStore {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
+  static init(initialCategories: RecipeCategory[]): CategoriesStore {
+    const store = new CategoriesStore();
+    store.categories = initialCategories.filter((cat) => cat.title !== 'All');
+    return store;
+  }
+
   async fetchCategories() {
     this.loading = true;
     this.error = null;
