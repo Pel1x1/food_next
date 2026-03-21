@@ -8,7 +8,7 @@ yarn dev
 #Деплой
 
 ```
-https://food-next-git-hw-5-pel1x1s-projects.vercel.app/
+https://food-next-rho.vercel.app/
 ```
 
 
