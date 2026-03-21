@@ -21,8 +21,8 @@ const IngredientRow: React.FC<IngredientRowProps> = observer(({ documentId, ingr
   const [amountDraft, setAmountDraft] = useState(ingredient.amount ?? '');
 
   const confirm = () => {
-    cartStore.updateIngredient(documentId, ingredient.id, nameDraft, amountDraft);
     setEditing(false);
+    cartStore.updateIngredient(documentId, ingredient.id, nameDraft, amountDraft);
   };
 
   const cancel = () => {

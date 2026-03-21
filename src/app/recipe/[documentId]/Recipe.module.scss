@@ -49,7 +49,6 @@
     margin: 0;
     font-size: 1.3rem;
     padding: 12px 24px;
-    background: $button-primary-bg;
     border-radius: $radius-lg;
     backdrop-filter: blur(10px);
     box-shadow: $card-shadow;
@@ -171,7 +170,6 @@
 
   &:hover {
     opacity: 1;
-    background-color: $button-primary-bg-hover;
     transform: translateX(-8px);
   }
 }

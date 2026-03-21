@@ -9,11 +9,17 @@ import { useLocalObservable } from 'mobx-react-lite';
 import axios from 'axios';
 import type { StrapiListResponse, RecipeFromApi } from '@/shared/entity/recipe';
 import { apiUrls } from '@/shared/config/api';
-import { motion} from 'framer-motion';
-import {headerVariants, articleVariants} from "./components/ProfileAnimations"
+import { motion } from 'framer-motion';
+import { headerVariants, articleVariants } from "./components/ProfileAnimations";
 
 const Profile: React.FC = () => {
-  const {cartStore, themeStore, favouritesStore}= useStore();
+  const { cartStore, themeStore, favouritesStore } = useStore();
+
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const statsStore = useLocalObservable(() => ({
     totalRecipes: 0,
     loading: false,
@@ -40,6 +46,10 @@ const Profile: React.FC = () => {
   React.useEffect(() => {
     void statsStore.fetch();
   }, [statsStore]);
+
+  if (!isMounted) {
+    return null; // или скелетон
+  }
 
   const favouritesCount = favouritesStore.items.length;
   const cartItemsCount = cartStore.totalItems;
@@ -152,7 +162,7 @@ const Profile: React.FC = () => {
             </Text>
           </motion.article>
         </section>
-        
+        {/* 
         <section className={styles.preferencesSection}>
           <div className={styles.preferenceCard}>
             <div>
@@ -188,11 +198,12 @@ const Profile: React.FC = () => {
             </button>
           </div>
         </section>
+              */}
         {statsStore.error && (
           <div className={styles.errorText}>{statsStore.error}</div>
         )}
       </div>
-      
+
     </div>
   );
 };

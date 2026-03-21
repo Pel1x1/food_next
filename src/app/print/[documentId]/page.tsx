@@ -22,7 +22,7 @@ const PrintRecipePage: React.FC = () => {
     if (documentId) {
       store.fetchRecipe(documentId).then(() => {
           window.print();
-
+          
       });
     }
   }, [documentId, store]);
